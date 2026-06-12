@@ -1,0 +1,26 @@
+{
+  "manifest_version": "0.2",
+  "name": "mcp-glpi-it4",
+  "version": "0.1.0",
+  "description": "MCP Server para GLPI (High-level API v2.3 / OAuth2) — chamados, inventário e configuração.",
+  "author": { "name": "IT4Solução", "url": "" },
+  "server": {
+    "type": "python",
+    "entry_point": "src/mcp_glpi_it4/server.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["-m", "mcp_glpi_it4.server"],
+      "env": {
+        "PYTHONPATH": "${__dirname}/src",
+        "GLPI_BASE_URL": "https://suporte.sys.it4solucao.com.br",
+        "GLPI_API_VERSION": "v2.3",
+        "GLPI_CLIENT_ID": "",
+        "GLPI_CLIENT_SECRET": "",
+        "GLPI_USERNAME": "",
+        "GLPI_PASSWORD": "",
+        "GLPI_OAUTH_SCOPE": "api",
+        "GLPI_WRITE_MODE": "dry_run"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# Credenciais e ambiente
+.env
+*.env
+!.env.example
+
+# Logs de auditoria / runtime (contêm dados da operação)
+rollback_log.json
+rollback_log.*.json
+error_log.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+
+# SO
+.DS_Store

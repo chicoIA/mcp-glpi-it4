@@ -1,0 +1,14 @@
+{
+  "api_base": "https://suporte.sys.it4solucao.com.br/api.php",
+  "api_version": "v2.3",
+  "endpoints": {
+    "Entity":            "Administration/Entity",
+    "Calendar":          "Dropdowns/Calendar",
+    "CalendarSegment":   "Dropdowns/CalendarTimeRange",
+    "ITILCategory":      "Dropdowns/ITILCategory",
+    "Group":             "Administration/Group",
+    "SLM":               "Setup/SLM",
+    "SLA":               "Setup/SLA",
+    "SLALevel":          "Setup/SLALevel"
+  }
+}
