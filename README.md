@@ -3,7 +3,7 @@
 MCP Server para integração com o **GLPI** da IT4Solução via **High-level API v2.3 (OAuth2)**.
 Expõe chamados, inventário de computadores e configuração de parâmetros como ferramentas (tools) para assistentes como o Claude.
 
-- **Instância:** `https://suporte.sys.it4solucao.com.br`
+- **Instância:** `https://suporte.sys.com.br`
 - **API:** `api.php/v2.3` · **Auth:** OAuth2 Password Grant
 - **Stack:** Python 3.12 · FastMCP · httpx (async)
 - **Segurança:** `dry_run` por padrão + reversão de toda escrita
@@ -26,7 +26,7 @@ cp .env.example .env   # preencha as credenciais
 
 | Variável | Obrigatória | Default | Descrição |
 |---|---|---|---|
-| `GLPI_BASE_URL` | — | `https://suporte.sys.it4solucao.com.br` | URL base |
+| `GLPI_BASE_URL` | — | `https://suporte.sys.com.br` | URL base |
 | `GLPI_API_VERSION` | — | `v2.3` | Versão da API |
 | `GLPI_CLIENT_ID` / `GLPI_CLIENT_SECRET` | **sim** | — | Cliente OAuth (`Setup > OAuth Clients`) |
 | `GLPI_USERNAME` / `GLPI_PASSWORD` | **sim** | — | Usuário de serviço |
