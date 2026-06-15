@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -21,11 +22,26 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _ensure_writable_dir(path: str) -> str:
+    """Garante uma pasta gravável; se 'path' falhar, cai para um diretório temporário."""
+    for candidate in (path, os.path.join(tempfile.gettempdir(), "mcp-glpi-it4")):
+        try:
+            os.makedirs(candidate, exist_ok=True)
+            probe = os.path.join(candidate, ".write_test")
+            with open(probe, "w") as f:
+                f.write("ok")
+            os.remove(probe)
+            return candidate
+        except OSError:
+            continue
+    return tempfile.gettempdir()
+
+
 class Auditor:
     def __init__(self, audit_dir: str = "."):
-        self.dir = audit_dir
-        self.rollback_path = os.path.join(audit_dir, ROLLBACK_LOG)
-        self.error_path = os.path.join(audit_dir, ERROR_LOG)
+        self.dir = _ensure_writable_dir(audit_dir)
+        self.rollback_path = os.path.join(self.dir, ROLLBACK_LOG)
+        self.error_path = os.path.join(self.dir, ERROR_LOG)
         self._lock = threading.Lock()
 
     # ── leitura/escrita de arquivo ────────────────────────────────────────────
@@ -36,8 +52,12 @@ class Auditor:
         return {"_meta": {"created_at": _now()}, "items": []}
 
     def _write(self, path: str, data: dict) -> None:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except OSError:
+            # Log é best-effort: nunca deve interromper a operação principal.
+            pass
 
     # ── registro de operações ──────────────────────────────────────────────────
     def _append(self, entry: dict) -> dict:

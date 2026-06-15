@@ -15,6 +15,16 @@ def _env(name: str, default: str | None = None, required: bool = False) -> str |
     return val
 
 
+def _default_audit_dir() -> str:
+    """Pasta gravável para os logs de auditoria/erro.
+
+    O Claude Desktop pode iniciar o servidor com um diretório de trabalho
+    sem permissão de escrita (ex.: '/'). Por isso o padrão é uma pasta
+    do usuário, criada sob demanda. Pode ser sobrescrita por GLPI_AUDIT_DIR.
+    """
+    return os.path.join(os.path.expanduser("~"), ".mcp-glpi-it4")
+
+
 @dataclass(frozen=True)
 class Settings:
     base_url: str
@@ -54,5 +64,5 @@ class Settings:
             write_mode=_env("GLPI_WRITE_MODE", "dry_run"),
             timeout=float(_env("GLPI_TIMEOUT", "15")),
             max_retries=int(_env("GLPI_MAX_RETRIES", "3")),
-            audit_dir=_env("GLPI_AUDIT_DIR", "."),
+            audit_dir=_env("GLPI_AUDIT_DIR", _default_audit_dir()),
         )
