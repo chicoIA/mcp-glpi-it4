@@ -14,6 +14,7 @@ RESOURCE_PATHS: dict[str, str] = {
     "Entity": "Administration/Entity",
     "Group": "Administration/Group",
     "User": "Administration/User",
+    "Profile": "Administration/Profile",
     # Dropdowns
     "ITILCategory": "Dropdowns/ITILCategory",
     # Setup
@@ -30,8 +31,10 @@ TICKET_TIMELINE = {
     "document": "Timeline/Document",
 }
 
-# Papéis de ator em chamados (TeamMember/{role}).
-TICKET_ACTOR_ROLES = {"requester", "observer", "assign"}
+# Papéis de ator em chamados (TeamMember/{role}) — nomes da HL API v2.3.
+TICKET_ACTOR_ROLES = {"requester", "observer", "assigned"}
+# Aliases tolerados na entrada (GLPI clássico usa "assign").
+TICKET_ROLE_ALIASES = {"assign": "assigned"}
 
 TICKET_STATUS = {
     1: "Novo", 2: "Em atendimento (atribuído)", 3: "Em atendimento (planejado)",

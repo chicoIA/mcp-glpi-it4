@@ -93,17 +93,29 @@ def register(mcp, client: GLPIClient) -> None:
 
     @mcp.tool()
     @guard
-    async def glpi_atribuir_chamado(ticket_id: int, role: str = "assign",
+    async def glpi_atribuir_chamado(ticket_id: int, role: str = "assigned",
                                     users_id: int | None = None,
-                                    groups_id: int | None = None) -> dict:
-        """Define um ator no chamado. role: requester | observer | assign."""
+                                    groups_id: int | None = None,
+                                    extra: dict | None = None) -> dict:
+        """Define um ator no chamado. role: requester | observer | assigned.
+
+        Na HL API v2.3 o POST vai na COLEÇÃO /TeamMember (o papel vai no corpo, não na
+        URL — /TeamMember/{role} é só GET/DELETE). O ator é {itemtype, items_id}.
+        'assign' é aceito como alias de 'assigned'. 'extra' permite ajuste fino do corpo.
+        """
+        role = maps.TICKET_ROLE_ALIASES.get(role, role)
         if role not in maps.TICKET_ACTOR_ROLES:
             return {"status": "error",
                     "detail": f"role inválido. Use um de: {sorted(maps.TICKET_ACTOR_ROLES)}"}
-        payload = compact({"users_id": users_id, "groups_id": groups_id})
-        if not payload:
+        if users_id is not None:
+            payload = {"role": role, "itemtype": "User", "items_id": users_id}
+        elif groups_id is not None:
+            payload = {"role": role, "itemtype": "Group", "items_id": groups_id}
+        else:
             return {"status": "error", "detail": "Informe users_id ou groups_id."}
-        return await client.create_sub("Ticket", ticket_id, f"TeamMember/{role}", payload)
+        if extra:
+            payload.update(extra)
+        return await client.create_sub("Ticket", ticket_id, "TeamMember", payload)
 
     @mcp.tool()
     @guard

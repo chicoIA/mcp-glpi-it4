@@ -59,11 +59,13 @@ Como obter Client ID/Secret: `Setup > OAuth Clients` no GLPI (ver `../scripts_gl
 
 Detalhes e exemplos de prompts: [docs/USO.md](docs/USO.md).
 
-## Ferramentas (24)
+## Ferramentas (29)
 
 **Chamados:** `glpi_listar_chamados`, `glpi_consultar_chamado`, `glpi_criar_chamado`, `glpi_atualizar_chamado`, `glpi_adicionar_acompanhamento`, `glpi_adicionar_tarefa`, `glpi_adicionar_solucao`, `glpi_atribuir_chamado`, `glpi_excluir_chamado`.
 
 **Inventário:** `glpi_listar_computadores`, `glpi_consultar_ativo`, `glpi_criar_computador`, `glpi_atualizar_computador`, `glpi_excluir_computador`.
+
+**Usuários:** `glpi_listar_usuarios`, `glpi_consultar_usuario`, `glpi_listar_perfis`, `glpi_criar_usuario`, `glpi_excluir_usuario`.
 
 **Configuração:** `glpi_listar_config`, `glpi_consultar_config`, `glpi_atualizar_config`.
 

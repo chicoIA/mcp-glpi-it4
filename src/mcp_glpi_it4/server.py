@@ -10,7 +10,7 @@ from mcp.server.fastmcp import FastMCP
 from .config import Settings
 from .glpi.audit import Auditor
 from .glpi.core import GLPIClient
-from .tools import assets, config_tools, support, tickets
+from .tools import assets, config_tools, support, tickets, users
 
 
 def build_server() -> FastMCP:
@@ -23,6 +23,7 @@ def build_server() -> FastMCP:
     assets.register(mcp, client)
     config_tools.register(mcp, client)
     support.register(mcp, client, settings)
+    users.register(mcp, client)
     return mcp
 
 
