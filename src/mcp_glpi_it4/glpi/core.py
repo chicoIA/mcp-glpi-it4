@@ -87,17 +87,21 @@ class GLPIClient:
 
     @property
     def _headers(self) -> dict:
-        return {"Authorization": f"Bearer {self._token}",
-                "Content-Type": "application/json", "Accept": "application/json"}
+        # Content-Type NÃO entra aqui: em GET (sem corpo) o GLPI v2.3 rejeitaria
+        # com 400 "Invalid JSON body". Ele é adicionado só quando há payload.
+        return {"Authorization": f"Bearer {self._token}", "Accept": "application/json"}
 
     # ── requisição base com resiliência ───────────────────────────────────────
     async def request(self, method: str, path: str, *, params: dict | None = None,
                        json: dict | None = None, _reauthed: bool = False) -> httpx.Response:
         await self._ensure_token()
         url = f"{self.s.api_url}/{path.lstrip('/')}"
+        headers = self._headers
+        if json is not None:
+            headers = {**headers, "Content-Type": "application/json"}
         attempt = 0
         while True:
-            resp = await self.http.request(method, url, headers=self._headers,
+            resp = await self.http.request(method, url, headers=headers,
                                            params=params, json=json)
             # 401 → re-autentica uma vez e repete
             if resp.status_code == 401 and not _reauthed:

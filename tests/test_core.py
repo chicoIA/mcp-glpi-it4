@@ -120,6 +120,32 @@ async def test_401_triggers_reauth(client_factory):
 
 # ── erro 404 é mapeado com hint ───────────────────────────────────────────────
 @respx.mock
+async def test_get_sem_content_type_nem_corpo(client_factory):
+    # Regressão: GET não pode levar Content-Type nem body (GLPI v2.3 → 400 Invalid JSON body).
+    _token()
+    route = respx.get(f"{API}/Administration/Entity").mock(
+        return_value=httpx.Response(200, json=[]))
+    c = client_factory(write_mode="live")
+    await c.list_items("Entity")
+    req = route.calls.last.request
+    assert "content-type" not in {k.lower() for k in req.headers}
+    assert req.content in (b"", None)
+    await c.aclose()
+
+
+@respx.mock
+async def test_post_inclui_content_type(client_factory):
+    _token()
+    route = respx.post(f"{API}/Assistance/Ticket").mock(
+        return_value=httpx.Response(201, json={"id": 1}))
+    c = client_factory(write_mode="live")
+    await c.create_item("Ticket", {"name": "x"})
+    req = route.calls.last.request
+    assert req.headers.get("content-type", "").startswith("application/json")
+    await c.aclose()
+
+
+@respx.mock
 async def test_404_maps_hint(client_factory):
     _token()
     respx.get(f"{API}/Assistance/Ticket/999").mock(return_value=httpx.Response(404, text="not found"))
