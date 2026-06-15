@@ -30,8 +30,10 @@ def register(mcp, client: GLPIClient) -> None:
     async def glpi_consultar_chamado(id: int, incluir_timeline: bool = True) -> dict:
         """Detalha um chamado. Se incluir_timeline, agrega follow-ups, tarefas e solução."""
         ticket = await client.get_item("Ticket", id)
-        result = {"status": "ok", "ticket": ticket,
-                  "status_label": maps.label(maps.TICKET_STATUS, ticket.get("status"))}
+        st = ticket.get("status")
+        # Na v2.3 'status' vem como objeto {id,name}; em versões legacy, como int.
+        status_label = st.get("name") if isinstance(st, dict) else maps.label(maps.TICKET_STATUS, st)
+        result = {"status": "ok", "ticket": ticket, "status_label": status_label}
         if incluir_timeline:
             result["timeline"] = await client.get_item("Ticket", id, sub="Timeline")
         return result
