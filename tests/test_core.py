@@ -134,6 +134,21 @@ async def test_get_sem_content_type_nem_corpo(client_factory):
 
 
 @respx.mock
+async def test_paginacao_usa_start_e_limit(client_factory):
+    # Regressão: a HL API v2 pagina por 'start'/'limit' (não 'range').
+    _token()
+    route = respx.get(f"{API}/Dropdowns/ITILCategory").mock(
+        return_value=httpx.Response(200, json=[]))
+    c = client_factory(write_mode="live")
+    await c.list_items("ITILCategory", start=0, limit=5)
+    q = dict(route.calls.last.request.url.params)
+    assert q.get("limit") == "5"
+    assert q.get("start") == "0"
+    assert "range" not in q
+    await c.aclose()
+
+
+@respx.mock
 async def test_post_inclui_content_type(client_factory):
     _token()
     route = respx.post(f"{API}/Assistance/Ticket").mock(

@@ -124,13 +124,17 @@ class GLPIClient:
 
     # ── operações de leitura ──────────────────────────────────────────────────
     async def list_items(self, resource: str, *, rsql: str | None = None,
-                          range_: str | None = None, sort: str | None = None,
+                          start: int | None = None, limit: int | None = None,
+                          sort: str | None = None,
                           params: dict | None = None) -> list | dict:
+        # A HL API v2 pagina por 'start'/'limit' (query string), não por 'range'.
         p = dict(params or {})
         if rsql:
             p["filter"] = rsql
-        if range_:
-            p["range"] = range_
+        if start is not None:
+            p["start"] = start
+        if limit is not None:
+            p["limit"] = limit
         if sort:
             p["sort"] = sort
         resp = await self.request("GET", maps.resource_path(resource), params=p)

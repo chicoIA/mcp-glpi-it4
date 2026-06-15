@@ -19,7 +19,7 @@ def register(mcp, client: GLPIClient) -> None:
             parts.append(f"name=like={busca}")
         rsql = ";".join(parts) if parts else None
         data = await client.list_items("Computer", rsql=rsql,
-                                       range_=f"{offset}-{offset + limite - 1}", sort="id:desc")
+                                       start=offset, limit=limite, sort="id:desc")
         items = data if isinstance(data, list) else data.get("items", data)
         return {"status": "ok", "count": len(items) if isinstance(items, list) else None,
                 "items": items}

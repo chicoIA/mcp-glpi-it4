@@ -19,7 +19,7 @@ def register(mcp, client: GLPIClient) -> None:
         rsql = build_rsql({"status": status, "type": tipo,
                            "priority": prioridade, "users_id_tech": tecnico_id})
         data = await client.list_items("Ticket", rsql=rsql,
-                                       range_=f"{offset}-{offset + limite - 1}",
+                                       start=offset, limit=limite,
                                        sort="id:desc")
         items = data if isinstance(data, list) else data.get("items", data)
         return {"status": "ok", "count": len(items) if isinstance(items, list) else None,

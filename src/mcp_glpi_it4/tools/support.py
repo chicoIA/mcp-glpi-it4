@@ -12,21 +12,21 @@ def register(mcp, client: GLPIClient, settings: Settings) -> None:
     @guard
     async def glpi_listar_categorias(limite: int = 50) -> dict:
         """Lista as categorias ITIL para classificar chamados."""
-        data = await client.list_items("ITILCategory", range_=f"0-{limite - 1}")
+        data = await client.list_items("ITILCategory", start=0, limit=limite)
         return {"status": "ok", "items": data}
 
     @mcp.tool()
     @guard
     async def glpi_listar_entidades(limite: int = 50) -> dict:
         """Lista as entidades disponíveis no GLPI."""
-        data = await client.list_items("Entity", range_=f"0-{limite - 1}")
+        data = await client.list_items("Entity", start=0, limit=limite)
         return {"status": "ok", "items": data}
 
     @mcp.tool()
     @guard
     async def glpi_listar_grupos(limite: int = 50) -> dict:
         """Lista os grupos do GLPI (para atribuição de chamados)."""
-        data = await client.list_items("Group", range_=f"0-{limite - 1}")
+        data = await client.list_items("Group", start=0, limit=limite)
         return {"status": "ok", "items": data}
 
     @mcp.tool()
