@@ -100,7 +100,8 @@ def register(mcp, client: GLPIClient) -> None:
         """Define um ator no chamado. role: requester | observer | assigned.
 
         Na HL API v2.3 o POST vai na COLEÇÃO /TeamMember (o papel vai no corpo, não na
-        URL — /TeamMember/{role} é só GET/DELETE). O ator é {itemtype, items_id}.
+        URL — /TeamMember/{role} é só GET/DELETE). O ator é {role, type, id}, onde
+        'type' é o itemtype (User/Group) e 'id' é o id do ator (validado ao vivo).
         'assign' é aceito como alias de 'assigned'. 'extra' permite ajuste fino do corpo.
         """
         role = maps.TICKET_ROLE_ALIASES.get(role, role)
@@ -108,9 +109,9 @@ def register(mcp, client: GLPIClient) -> None:
             return {"status": "error",
                     "detail": f"role inválido. Use um de: {sorted(maps.TICKET_ACTOR_ROLES)}"}
         if users_id is not None:
-            payload = {"role": role, "itemtype": "User", "items_id": users_id}
+            payload = {"role": role, "type": "User", "id": users_id}
         elif groups_id is not None:
-            payload = {"role": role, "itemtype": "Group", "items_id": groups_id}
+            payload = {"role": role, "type": "Group", "id": groups_id}
         else:
             return {"status": "error", "detail": "Informe users_id ou groups_id."}
         if extra:

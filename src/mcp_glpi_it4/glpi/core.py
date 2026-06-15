@@ -42,6 +42,21 @@ class GLPIError(RuntimeError):
                 "detail": str(self), "hint": self.hint}
 
 
+def _safe_json(resp: httpx.Response):
+    """Lê o corpo JSON com tolerância a respostas 2xx sem corpo.
+
+    Vários POST de escrita do GLPI v2.3 (ex.: TeamMember de chamado) respondem
+    2xx com corpo VAZIO. Nesse caso resp.json() lançaria JSONDecodeError e a
+    operação — que de fato teve sucesso — seria reportada como erro.
+    """
+    if not resp.content:
+        return {}
+    try:
+        return resp.json()
+    except ValueError:
+        return {}
+
+
 class GLPIClient:
     def __init__(self, settings: Settings, auditor: Auditor | None = None,
                  http: httpx.AsyncClient | None = None):
@@ -154,7 +169,7 @@ class GLPIClient:
         if self.s.dry_run:
             return {"status": "dry_run", "op": "create", "path": path, "would_send": payload}
         resp = await self.request("POST", path, json=payload)
-        data = resp.json()
+        data = _safe_json(resp)
         if isinstance(data, list):
             data = data[0] if data else {}
         item_id = data.get("id")
@@ -177,7 +192,7 @@ class GLPIClient:
         resp = await self.request(UPDATE_METHOD, f"{path}/{item_id}", json=payload)
         entry = self.audit.record_update(resource, path, item_id, before, payload)
         return {"status": "ok", "op": "update", "id": item_id,
-                "audit_id": entry["audit_id"], "before": before, "data": resp.json()}
+                "audit_id": entry["audit_id"], "before": before, "data": _safe_json(resp)}
 
     async def delete_item(self, resource: str, item_id, *, soft: bool = True) -> dict:
         path = maps.resource_path(resource)
@@ -186,7 +201,7 @@ class GLPIClient:
         if soft:
             # soft-delete reversível via flag is_deleted
             resp = await self.request(UPDATE_METHOD, f"{path}/{item_id}", json={"is_deleted": 1})
-            result = resp.json() if resp.content else {}
+            result = _safe_json(resp)
         else:
             resp = await self.request("DELETE", f"{path}/{item_id}")
             result = {}
@@ -201,7 +216,7 @@ class GLPIClient:
         if self.s.dry_run:
             return {"status": "dry_run", "op": "create_sub", "path": full, "would_send": payload}
         resp = await self.request("POST", full, json=payload)
-        data = resp.json()
+        data = _safe_json(resp)
         if isinstance(data, list):
             data = data[0] if data else {}
         entry = self.audit.record_create(f"{resource}:{sub_path}", full, data.get("id"), "")

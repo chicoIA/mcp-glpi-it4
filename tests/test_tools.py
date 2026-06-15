@@ -36,8 +36,8 @@ async def test_tool_assign_invalid_role(client_factory):
 
 
 @respx.mock
-async def test_tool_assign_body_itemtype_e_role_na_colecao(client_factory):
-    # HL API v2.3: POST na coleção /TeamMember; role no corpo + {itemtype, items_id}.
+async def test_tool_assign_body_type_id_na_colecao(client_factory):
+    # HL API v2.3: POST na coleção /TeamMember; corpo {role, type, id}.
     _t = respx.post(TOKEN_URL).mock(
         return_value=httpx.Response(200, json={"access_token": "abc", "expires_in": 3600}))
     route = respx.post(f"{API}/Assistance/Ticket/9/TeamMember").mock(
@@ -49,7 +49,7 @@ async def test_tool_assign_body_itemtype_e_role_na_colecao(client_factory):
     assert res["status"] == "ok"
     import json as _json
     body = _json.loads(route.calls.last.request.content)
-    assert body == {"role": "requester", "itemtype": "User", "items_id": 12}
+    assert body == {"role": "requester", "type": "User", "id": 12}
     await c.aclose()
 
 
@@ -66,7 +66,23 @@ async def test_tool_assign_alias_assign_to_assigned(client_factory):
     assert res["status"] == "ok" and route.called
     import json as _json
     body = _json.loads(route.calls.last.request.content)
-    assert body["role"] == "assigned" and body["itemtype"] == "Group"
+    assert body["role"] == "assigned" and body["type"] == "Group" and body["id"] == 5
+    await c.aclose()
+
+
+@respx.mock
+async def test_tool_assign_resposta_2xx_vazia_nao_e_erro(client_factory):
+    # Regressão: GLPI responde 2xx com corpo VAZIO ao adicionar ator; não deve virar erro.
+    _t = respx.post(TOKEN_URL).mock(
+        return_value=httpx.Response(200, json={"access_token": "abc", "expires_in": 3600}))
+    respx.post(f"{API}/Assistance/Ticket/9/TeamMember").mock(
+        return_value=httpx.Response(204))           # No Content, sem JSON
+    c = client_factory(write_mode="live")
+    mcp = FakeMCP()
+    tickets.register(mcp, c)
+    res = await mcp.tools["glpi_atribuir_chamado"](ticket_id=9, role="requester", users_id=12)
+    assert res["status"] == "ok"                     # não estoura JSONDecodeError
+    assert res["data"] == {}
     await c.aclose()
 
 
