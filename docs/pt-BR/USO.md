@@ -1,5 +1,7 @@
 # Guia de Uso
 
+🌍 [English](../en/USAGE.md)
+
 ## 1. Pré-requisitos no GLPI
 
 1. **API v2.3 ativa** (padrão no GLPI 11).
@@ -11,6 +13,7 @@
 Copie `.env.example` para `.env` e preencha. Mínimo obrigatório:
 
 ```
+GLPI_BASE_URL=https://glpi.example.com
 GLPI_CLIENT_ID=...
 GLPI_CLIENT_SECRET=...
 GLPI_USERNAME=...
@@ -62,4 +65,4 @@ Nenhuma alteração é feita no GLPI. Revise o `would_send`, depois rode com `GL
 - **Status do chamado:** 1 Novo · 2 Atribuído · 3 Planejado · 4 Pendente · 5 Solucionado · 6 Fechado
 - **Tipo:** 1 Incidente · 2 Requisição
 - **Urgência/Prioridade:** 1 Muito baixa … 5 Muito alta (6 Maior)
-- **Papéis de ator:** `requester`, `observer`, `assign`
+- **Papéis de ator:** `requester`, `observer`, `assigned`

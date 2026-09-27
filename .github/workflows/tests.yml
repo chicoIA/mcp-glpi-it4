@@ -27,3 +27,25 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t mcp-glpi-it4:ci .
+
+      - name: Smoke test (tools are registered, stdio handshake)
+        run: |
+          docker run --rm --entrypoint python \
+            -e GLPI_BASE_URL=https://glpi.test \
+            -e GLPI_CLIENT_ID=x -e GLPI_CLIENT_SECRET=x \
+            -e GLPI_USERNAME=x -e GLPI_PASSWORD=x \
+            mcp-glpi-it4:ci -c "
+          import asyncio
+          from mcp_glpi_it4.server import build_server
+          tools = asyncio.run(build_server().list_tools())
+          print(len(tools), 'tools')
+          assert len(tools) >= 29, tools
+          "

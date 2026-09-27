@@ -54,7 +54,7 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         return cls(
-            base_url=_env("GLPI_BASE_URL", "https://suporte.sys.it4solucao.com.br").rstrip("/"),
+            base_url=_env("GLPI_BASE_URL", required=True).rstrip("/"),
             api_version=_env("GLPI_API_VERSION", "v2.3"),
             client_id=_env("GLPI_CLIENT_ID", required=True),
             client_secret=_env("GLPI_CLIENT_SECRET", required=True),

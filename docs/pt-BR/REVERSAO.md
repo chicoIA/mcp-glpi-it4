@@ -1,5 +1,7 @@
 # Reversão de Alterações
 
+🌍 [English](../en/ROLLBACK.md)
+
 Mandato do projeto: **toda alteração feita via API tem caminho de reversão.** Há duas camadas de proteção.
 
 ## 1. dry_run (prevenção)
@@ -25,18 +27,16 @@ Cada registro recebe um `audit_id`.
 - `glpi_reverter` (sem argumento) → reverte **todas** as pendentes em ordem reversa.
 - `glpi_reverter audit_id="abc123"` → reverte **uma** operação específica.
 
-**Pela linha de comando (lote, reaproveitando o script original):**
-```bash
-cd ../scripts_glpi
-python rollback.py --dry-run     # lista sem apagar
-python rollback.py               # reverte tudo (com confirmação)
-python rollback.py --type Ticket # reverte só um tipo
-```
-
 ## Arquivos
 
 - `rollback_log.json` — operações reversíveis (não versionar; está no `.gitignore`).
 - `error_log.json` — falhas de API para diagnóstico.
+
+Ambos ficam em `GLPI_AUDIT_DIR` (padrão `~/.mcp-glpi-it4`).
+
+> **Em Docker isso importa:** a imagem define `GLPI_AUDIT_DIR=/data` e declara um volume ali.
+> Rode com `-v glpi_audit:/data` (ou use o compose, que já faz isso). Sem volume, o log de
+> rollback morre com o container e as escritas feitas em `live` ficam irreversíveis.
 
 Após reverter um item, ele é marcado `reverted: true` (não some do log, mantém histórico).
 

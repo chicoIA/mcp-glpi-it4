@@ -1,0 +1,17 @@
+# HTTP mode: um container de longa duração servindo vários clientes MCP.
+# Endpoint: http://localhost:8000/mcp   ·   stop: docker compose down
+services:
+  mcp-glpi:
+    build: .
+    image: mcp-glpi-it4:local
+    env_file: .env
+    environment:
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "127.0.0.1:8000:8000"   # não exponha na rede sem um proxy com TLS/auth
+    volumes:
+      - glpi_audit:/data        # rollback_log.json sobrevive a restart/recreate
+    restart: unless-stopped
+
+volumes:
+  glpi_audit:

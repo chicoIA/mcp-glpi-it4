@@ -1,5 +1,5 @@
 {
-  "api_base": "https://suporte.sys.it4solucao.com.br/api.php",
+  "api_base": "${GLPI_BASE_URL}/api.php",
   "api_version": "v2.3",
   "endpoints": {
     "Entity":            "Administration/Entity",

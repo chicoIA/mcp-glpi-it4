@@ -1,9 +1,13 @@
-"""Entrypoint do MCP Server GLPI (IT4Solução).
+"""Entrypoint / MCP Server entrypoint (GLPI).
 
-Executar:  python -m mcp_glpi_it4.server   (transporte stdio)
-Requer as variáveis de ambiente de GLPI_* (ver .env.example).
+Run / Executar:  python -m mcp_glpi_it4.server
+Transport: MCP_TRANSPORT=stdio (default) | streamable-http | sse
+Host/port for HTTP transports: FASTMCP_HOST / FASTMCP_PORT.
+Env vars GLPI_* são obrigatórias — ver .env.example.
 """
 from __future__ import annotations
+
+import os
 
 from mcp.server.fastmcp import FastMCP
 
@@ -18,7 +22,11 @@ def build_server() -> FastMCP:
     auditor = Auditor(settings.audit_dir)
     client = GLPIClient(settings, auditor=auditor)
 
-    mcp = FastMCP("glpi-it4")
+    # FastMCP passa host/port explicitamente para o seu Settings, então as env
+    # FASTMCP_* sozinhas não valem — em container tem que ser lido aqui.
+    mcp = FastMCP("glpi-it4",
+                  host=os.environ.get("FASTMCP_HOST", "127.0.0.1"),
+                  port=int(os.environ.get("FASTMCP_PORT", "8000")))
     tickets.register(mcp, client)
     assets.register(mcp, client)
     config_tools.register(mcp, client)
@@ -28,7 +36,9 @@ def build_server() -> FastMCP:
 
 
 def main() -> None:
-    build_server().run()
+    # stdio para clientes locais (Claude Desktop/Code); streamable-http para
+    # container de longa duração servindo vários clientes.
+    build_server().run(transport=os.environ.get("MCP_TRANSPORT", "stdio"))
 
 
 if __name__ == "__main__":
